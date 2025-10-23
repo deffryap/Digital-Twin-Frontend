@@ -1,70 +1,54 @@
-import { useState, useEffect } from 'react';
-import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
+import PredictionPage from './pages/PredictionPage';
+import Navbar from './components/Navbar';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    // Cek token saat aplikasi dimuat
-    const token = localStorage.getItem('token');
-    if (token) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-      navigate('/login');
-    }
-  }, [navigate]);
+  const [isAuthenticated, setIsAuthenticated] = useState(
+    localStorage.getItem('isAuthenticated') === 'true'
+  );
 
   const handleLogin = () => {
     setIsAuthenticated(true);
+    localStorage.setItem('isAuthenticated', 'true');
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
     setIsAuthenticated(false);
-    navigate('/login');
+    localStorage.setItem('isAuthenticated', 'false');
   };
 
   return (
-    <div className="bg-[#f1f5f9] min-h-screen">
-      <Routes>
-        <Route 
-          path="/login" 
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <LoginPage onLogin={handleLogin} />
-            )
-          } 
-        />
-        <Route 
-          path="/register" 
-          element={
-            isAuthenticated ? (
-              <Navigate to="/dashboard" replace />
-            ) : (
-              <RegisterPage />
-            )
-          } 
-        />
-        <Route 
-          path="/dashboard" 
-          element={
-            isAuthenticated ? (
-              <DashboardPage onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          } 
-        />
-        <Route path="/" element={<Navigate to="/login" replace />} />
-      </Routes>
-    </div>
+    <>
+      {isAuthenticated && <Navbar onLogout={handleLogout} />}
+      <main className={`${isAuthenticated ? 'pt-16' : ''}`}>
+        <Routes>
+          <Route 
+            path="/login" 
+            element={!isAuthenticated ? <LoginPage onLogin={handleLogin} /> : <Navigate to="/dashboard" />} 
+          />
+          <Route 
+            path="/register" 
+            element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/dashboard" />} 
+          />
+          <Route 
+            path="/dashboard" 
+            element={isAuthenticated ? <DashboardPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/prediction" 
+            element={isAuthenticated ? <PredictionPage /> : <Navigate to="/login" />} 
+          />
+          <Route 
+            path="/" 
+            element={<Navigate to={isAuthenticated ? "/dashboard" : "/login"} />} 
+          />
+        </Routes>
+      </main>
+    </>
   );
 }
 

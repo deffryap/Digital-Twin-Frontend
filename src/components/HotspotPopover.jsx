@@ -6,7 +6,7 @@ const HotspotPopover = ({ component }) => {
     const statusInfo = getStatusInfo(component.health);
     return (
         <div
-            className="absolute z-20 pointer-events-none"
+            className="absolute z-[9999] pointer-events-none"
             style={{
                 top: `calc(${component.position.top} - 12px)`,
                 left: component.position.left,
